@@ -1,8 +1,9 @@
 {
   "name": "simple-migrate",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "a simple migrate strategy for node-mysql",
   "main": "index.js",
+  "files": ["index.js", "LICENSE", "README.md"],
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/.bin/mocha -w"
   },

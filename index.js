@@ -10,10 +10,6 @@ module.exports = function (options, dir, date, cb) {
     date = date ? date.valueOf() : Date.now();
   }
   cb = cb || function(){};
-  var dbconnection = require('mysql').createConnection(extend(
-        options,
-        {multipleStatements: true}
-      ));
 
   var returnSqlOnly = false;
   if (options.returnSqlOnly) {
@@ -40,9 +36,15 @@ module.exports = function (options, dir, date, cb) {
     return cb(err);
   }
 
-  if (returnSqlOnly) {
+  if (!sql) {
+    cb(null);
+  } else if (returnSqlOnly) {
     cb(null, sql);
   } else {
+    var dbconnection = require('mysql').createConnection(extend(
+          options,
+          {multipleStatements: true}
+        ));
     dbconnection.connect();
     dbconnection.query(sql);
     dbconnection.end(cb);
