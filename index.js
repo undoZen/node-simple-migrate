@@ -7,7 +7,7 @@ var extend = require('extend');
 module.exports = function (options, dir, date, cb) {
   if (!(date instanceof Date)) {
     cb = date;
-    date = date || new Date;
+    date = date ? date.valueOf() : Date.now();
   }
   cb = cb || function(){};
   var dbconnection = require('mysql').createConnection(extend(
@@ -21,14 +21,13 @@ module.exports = function (options, dir, date, cb) {
     delete options.returnSqlOnly;
   }
 
-  var now = Date.now();
   var sql = '';
   try {
     sql = fs.readdirSync(dir)
     .filter(function (filename) {
       if (!filename.match(/\.sql$/i)) return false;
       var timestamp = Date.parse(filename.substring(0, 24));
-      if (isNaN(timestamp) || timestamp < now) return false;
+      if (isNaN(timestamp) || timestamp < date) return false;
       return true;
     })
     .map(function (filename) {
