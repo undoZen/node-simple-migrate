@@ -17,16 +17,16 @@ module.exports = function (options, dir, date, cb) {
     delete options.returnSqlOnly;
   }
 
-  var sql = '';
+  var files = [], sql = '';
   try {
-    sql = fs.readdirSync(dir)
+    files = fs.readdirSync(dir)
     .filter(function (filename) {
       if (!filename.match(/\.sql$/i)) return false;
       var timestamp = Date.parse(filename.substring(0, 24));
       if (isNaN(timestamp) || timestamp < date) return false;
       return true;
     })
-    .map(function (filename) {
+    sql = files.map(function (filename) {
       return fs.readFileSync(path.join(dir, filename), 'utf-8');
     })
     .reduce(function (r, sql) {
@@ -37,9 +37,9 @@ module.exports = function (options, dir, date, cb) {
   }
 
   if (!sql) {
-    cb(null);
+    cb(null, sql, files);
   } else if (returnSqlOnly) {
-    cb(null, sql);
+    cb(null, sql, files);
   } else {
     var dbconnection = require('mysql').createConnection(extend(
           options,
@@ -47,6 +47,6 @@ module.exports = function (options, dir, date, cb) {
         ));
     dbconnection.connect();
     dbconnection.query(sql);
-    dbconnection.end(cb);
+    dbconnection.end(cb.bind(null, null, sql, files));
   }
 }
